@@ -1,0 +1,59 @@
+name: inception_v3
+title: Inception-V3
+task: classification
+dataset: imagenet
+metric: top1
+input:
+  name: images
+  shape:
+  - 1
+  - 3
+  - 299
+  - 299
+  dtype: float32
+  layout: NCHW
+graphs:
+  preprocess: preprocess.onnx
+  network: network.onnx
+preprocess:
+  kind: center_crop
+  resize: 342
+  crop: 299
+  interpolation: bilinear
+  mean:
+  - 0.485
+  - 0.456
+  - 0.406
+  std:
+  - 0.229
+  - 0.224
+  - 0.225
+decode:
+  kind: logits
+  output: logits
+source:
+  framework: torchvision 0.20.1 (3ac97aa9120137381ed1060f37237e44485ac2aa)
+  builder: inception_v3
+  weights: IMAGENET1K_V1
+  url: https://download.pytorch.org/models/inception_v3_google-0cc3c7bd.pth
+  sha256: 0cc3c7bd75056d25e46cba549dc184522069b81e9787eff6df84f397bd52a5ef
+  license: BSD-3-Clause (code); ImageNet-derived weights
+export:
+  family: torchvision
+  simplify: true
+  opset: 18
+  kwargs:
+    aux_logits: true
+    transform_input: true
+    init_weights: false
+  split:
+    network_input: /Concat_output_0
+    network_outputs:
+    - logits
+  framework_parity:
+    rtol: 0.0001
+    atol: 1.0e-05
+    logits_absolute_bound: 0.0001
+    require_top5_order: true
+network_input_map:
+  images: /Concat_output_0

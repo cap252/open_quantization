@@ -1,0 +1,18 @@
+{
+  "OrtConfig": "(providers: tuple[str, ...] = ('CPUExecutionProvider',), provider_options: tuple[tuple[tuple[str, str], ...], ...] = (), intra_op_threads: int = 1, inter_op_threads: int = 1, optimization: str = 'ORT_DISABLE_ALL', allowed_versions: tuple[str, ...] = ('1.20.2',), strict_versions: bool = False, scratch: str | None = None, profile_samples: int = 1) -> None",
+  "Scheme": "(scope: str = 'all', activation_symmetric: bool = False, weight_granularity: str = 'per_channel', method: str = 'percentile', percentile: float | None = 99.99, activation_scale: str = 'float', weight_scale: str = 'float', histogram_bins: int = 2048, quantized_bins: int = 128) -> None",
+  "CalibrationConfig": "(method: str = 'MinMax', percentile_value: float | None = None, histogram_bins: int = 2048, quantized_bins: int = 128) -> None",
+  "QuantizationConfig": "(activation_precision: opennpu_quant.quant.config.QuantPrecision = <factory>, weight_precision: opennpu_quant.quant.config.QuantPrecision = <factory>, activation_symmetric: bool = True, weight_symmetric: bool = True, activation_granularity: str = 'per_tensor', weight_granularity: str = 'per_tensor', scope: str = 'basic', representation: str = 'QDQ', calibration: opennpu_quant.quant.config.CalibrationConfig = <factory>, activation_scale_policy: str = 'float', weight_scale_policy: str = 'float', adaround: opennpu_quant.quant.config.AdaroundConfig | None = None, weight_group_size: int | None = None) -> None",
+  "AdaroundConfig": "(steps: int = 10000, learning_rate: float = 0.001, warmup_fraction: float = 0.2, regularization: float = 0.01, beta_start: float = 20.0, beta_end: float = 2.0, seed: int = 20260928, batch_size: int = 8, window_samples: int = 32, window_bytes: int = 536870912, window_steps: int = 100, device: str = 'auto', atol: float = 1e-05, rtol: float = 0.0001) -> None",
+  "ActivationCacheConfig": "(host_bytes: int = 4294967296, device_bytes: int = 536870912, device_reserve_bytes: int = 2147483648) -> None",
+  "CalibrationStats": "(model_identity: str, plan_identity: str, samples_identity: str, sample_count: int, histogram_bins: int, minmax: dict, histograms: opennpu_quant.quant.histograms.FixedHistograms, protection: dict, environment: dict, statistics_identity: str) -> None",
+  "QuantizationResult": "(model: object, config: opennpu_quant.quant.config.QuantizationConfig, range_identity: str, audit: dict) -> None",
+  "prepare_feed_cache": "(directory, factory, *, identity, verify_source, expected_samples, max_bytes, reserve=None)",
+  "calibrate": "(model, feeds, *, config=None, ort=None)",
+  "quantize": "(model, calibration, scheme=None, *, config=None, ort=None, reconstruction_feeds=None, checkpoint_dir=None)",
+  "apply_adaround": "(fp32_model, quantized_result, feeds, config=None, *, ort=None, checkpoint_dir=None, activation_cache=None)",
+  "evaluate": "(model, samples, *, evaluator, ort=None, expected_samples=None, limit=None)",
+  "save_model": "(model, path)",
+  "EvaluationSample": "(sample_id: str, feeds: Mapping[str, Any], target: Any, metadata: Mapping[str, Any] = <factory>) -> None",
+  "TopKClassification": "(*, output_name='logits', topk=(1, 5))"
+}

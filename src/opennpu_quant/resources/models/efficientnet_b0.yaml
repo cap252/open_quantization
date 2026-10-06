@@ -1,0 +1,50 @@
+name: efficientnet_b0
+title: EfficientNet-B0
+task: classification
+dataset: imagenet
+metric: top1
+input:
+  name: images
+  shape:
+  - 1
+  - 3
+  - 224
+  - 224
+  dtype: float32
+  layout: NCHW
+graphs:
+  network: network.onnx
+preprocess:
+  kind: center_crop
+  resize: 256
+  crop: 224
+  interpolation: bicubic
+  mean:
+  - 0.485
+  - 0.456
+  - 0.406
+  std:
+  - 0.229
+  - 0.224
+  - 0.225
+decode:
+  kind: logits
+  output: logits
+source:
+  framework: torchvision 0.20.1 (3ac97aa9120137381ed1060f37237e44485ac2aa)
+  builder: efficientnet_b0
+  weights: IMAGENET1K_V1
+  url: https://download.pytorch.org/models/efficientnet_b0_rwightman-7f5810bc.pth
+  sha256: 7f5810bc96def8f7552d5b7e68d53c4786f81167d28291b21c0d90e1fca14934
+  license: BSD-3-Clause (code); ImageNet-derived weights
+export:
+  family: torchvision
+  opset: 18
+  simplify: true
+  framework_parity:
+    rtol: 0.0001
+    atol: 1.0e-05
+    logits_absolute_bound: 0.0001
+    require_top5_order: true
+network_input_map:
+  images: images

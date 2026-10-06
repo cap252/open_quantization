@@ -1,0 +1,60 @@
+name: ssd_mobilenet_v2_320
+title: SSD-MobileNetV2
+task: detection
+dataset: coco
+metric: AP
+input:
+  name: images
+  shape:
+  - 1
+  - 320
+  - 320
+  - 3
+  dtype: uint8
+  layout: NHWC
+graphs:
+  preprocess: preprocess.onnx
+  network: network.onnx
+  postprocess: postprocess.onnx
+preprocess:
+  kind: resize_uint8
+  size:
+  - 320
+  - 320
+  interpolation: cv2_linear
+decode:
+  kind: tf_od_api
+  count: num_detections
+  boxes: detection_boxes
+  scores: detection_scores
+  classes: detection_classes
+  boxes_to: clip_xywh
+source:
+  url: https://storage.googleapis.com/download.tensorflow.org/models/object_detection/tf2/20200711/ssd_mobilenet_v2_320x320_coco17_tpu-8.tar.gz
+  sha256: 03ece682a93cba351681e27e3d45d620b995fe474c3079ac5d14c9681acef015
+  provenance_repo: tensorflow/models 8b12ae202a3ccf8f965c730a4e7617204e32000b
+  license: Apache-2.0
+export:
+  family: tf_ssd
+  opset: 18
+  simplify: true
+  split:
+    network_input: StatefulPartitionedCall/StatefulPartitionedCall/ssd_mobile_net_v2keras_feature_extractor/functional_1/Conv1/Conv2D__35:0
+    network_outputs:
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalClassHead_5/ClassPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalBoxHead_5/BoxEncodingPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalClassHead_4/ClassPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalBoxHead_4/BoxEncodingPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalClassHead_3/ClassPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalBoxHead_3/BoxEncodingPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalClassHead_2/ClassPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalBoxHead_2/BoxEncodingPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalClassHead_1/ClassPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalBoxHead_1/BoxEncodingPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalClassHead_0/ClassPredictor/BiasAdd:0
+    - StatefulPartitionedCall/StatefulPartitionedCall/BoxPredictor/ConvolutionalBoxHead_0/BoxEncodingPredictor/BiasAdd:0
+  framework_parity:
+    rtol: 0.0001
+    atol: 1.0e-05
+network_input_map:
+  images: StatefulPartitionedCall/StatefulPartitionedCall/ssd_mobile_net_v2keras_feature_extractor/functional_1/Conv1/Conv2D__35:0

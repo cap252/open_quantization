@@ -1,0 +1,58 @@
+name: deeplabv3_mnv2_voc
+title: DeepLabV3-MobileNetV2
+task: segmentation
+dataset: voc
+metric: mIoU
+input:
+  name: images
+  shape:
+  - 1
+  - 513
+  - 513
+  - 3
+  dtype: float32
+  layout: NHWC
+graphs:
+  network: network.onnx
+  postprocess: postprocess.onnx
+preprocess:
+  kind: longer_side_pad
+  size: 513
+  mean:
+  - 127.5
+  - 127.5
+  - 127.5
+  std:
+  - 127.5
+  - 127.5
+  - 127.5
+  pad: zeros_bottom_right
+decode:
+  kind: segmentation_labels
+  output: logits
+metric_params:
+  classes: 21
+  ignore_label: 255
+source:
+  url: http://download.tensorflow.org/models/deeplabv3_mnv2_pascal_train_aug_2018_01_29.tar.gz
+  sha256: cd506941e4f88fd053903913761df2e76ea00c01079cecfd35855304a4a5fb48
+  license: Apache-2.0
+  note: 일반 DeepLabV3. ASPP의 dilation 갈래와 decoder가 없다 (1x1 conv + image pooling 2갈래)
+export:
+  family: tf_deeplab
+  opset: 18
+  simplify: false
+  graph_input: sub_7:0
+  graph_output: ResizeBilinear_2:0
+  split:
+    network_input: images
+    network_outputs:
+    - logits/semantic/BiasAdd:0
+  framework_parity:
+    rtol: 0.0001
+    atol: 1.0e-05
+    logits_absolute_bound: 0.0002
+    label_disagreement_fraction_limit: 0.0001
+  fixtures: voc_validation_first3
+network_input_map:
+  images: images

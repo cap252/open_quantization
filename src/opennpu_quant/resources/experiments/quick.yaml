@@ -1,0 +1,111 @@
+name: quick
+models:
+- resnet18
+- yolov5s
+runtime:
+  device: cpu
+  intra_op_threads: 1
+  inter_op_threads: 1
+  cuda:
+    use_tf32: false
+    cudnn_conv_algo_search: HEURISTIC
+    cudnn_conv_use_max_workspace: false
+    gpu_mem_limit: 6442450944
+calibration:
+  input_cache:
+    enabled: true
+    max_bytes: 2147483648
+  source: compute
+  device: run
+  histogram_bins: 2048
+  samples:
+    imagenet: 8
+    coco: 8
+    widerface: 8
+    voc: 8
+schemes:
+  pot:
+    scope: all
+    activation_symmetric: false
+    weight_granularity: per_channel
+    method: percentile
+    percentile: per_model
+    activation_scale: pot_ceil
+    weight_scale: pot_ceil
+  float:
+    scope: all
+    activation_symmetric: false
+    weight_granularity: per_channel
+    method: percentile
+    percentile: per_model
+    activation_scale: float
+    weight_scale: float
+conditions:
+  fp32: {}
+  pot_rtn:
+    scheme: pot
+  float_rtn:
+    scheme: float
+percentiles:
+  resnet18:
+    pot: 99.99
+    float: 99.999
+  resnet50:
+    pot: 99.9
+    float: 99.999
+  mobilenet_v2:
+    pot: 99.9
+    float: 99.99
+  mobilenet_v3_large:
+    pot: 99.9
+    float: 99.99
+  efficientnet_b0:
+    pot: 99.9
+    float: 99.99
+  inception_v3:
+    pot: 99.99
+    float: 99.99
+  yolov5s:
+    pot: 99.99
+    float: 99.99
+  ssd_mobilenet_v2_320:
+    pot: 99.99
+    float: 99.999
+  deeplabv3_mnv2_voc:
+    pot: 99.9
+    float: 99.9
+  retinaface_mnet025_640:
+    pot: 99.9
+    float: 99.9
+adaround:
+  steps: 10000
+  learning_rate: 0.001
+  warmup_fraction: 0.2
+  regularization: 0.01
+  beta_start: 20.0
+  beta_end: 2.0
+  seed: 20260928
+  batch_size: 8
+  window_samples: 32
+  window_bytes: 536870912
+  window_steps: 100
+  device: auto
+  data: calibration
+evaluation:
+  split: validation
+  limit: 32
+output:
+  save_qdq_models: false
+  save_predictions: false
+report:
+  primary_metric:
+    classification: top1
+    detection: AP
+    face: AP_medium
+    segmentation: mIoU
+  target_mean_recovery: 98.0
+activation_cache:
+  enabled: true
+  host_bytes: 4294967296
+  device_bytes: 536870912
+  device_reserve_bytes: 2147483648

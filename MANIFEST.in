@@ -1,0 +1,6 @@
+include setup.sh README.md README.ko.md LICENSE NOTICE THIRD_PARTY.md
+recursive-include requirements *.txt
+prune .github
+prune docs
+prune tests
+prune tools

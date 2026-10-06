@@ -1,0 +1,58 @@
+name: yolov5s
+title: YOLOv5s
+task: detection
+dataset: coco
+metric: AP
+input:
+  name: images
+  shape:
+  - 1
+  - 3
+  - 640
+  - 640
+  dtype: float32
+  layout: NCHW
+graphs:
+  network: network.onnx
+  postprocess: postprocess.onnx
+preprocess:
+  kind: letterbox
+  size: 640
+  pad_value: 114
+decode:
+  kind: yolo
+  output: predictions
+  score: obj_x_cls
+  confidence_threshold: 0.001
+  multi_label: true
+  max_nms_candidates: 30000
+  nms:
+    impl: cv2.dnn.NMSBoxes
+    per_class: true
+    iou: 0.6
+    score_threshold: 0.0
+  max_detections: 300
+  boxes: unletterbox_clip_xywh
+  category_ids: coco_sorted
+source:
+  repo: https://github.com/ultralytics/yolov5
+  commit: 915bbf294bb74c859f0b41f1c23bc395014ea679
+  url: https://github.com/ultralytics/yolov5/releases/download/v7.0/yolov5s.pt
+  sha256: 8b3b748c1e592ddd8868022e8732fde20025197328490623cc16c6f24d0782ee
+  license: GPL-3.0
+export:
+  family: yolov5
+  opset: 18
+  simplify: true
+  split:
+    network_input: images
+    network_outputs:
+    - /model/model.24/m.0/Conv_output_0
+    - /model/model.24/m.1/Conv_output_0
+    - /model/model.24/m.2/Conv_output_0
+  framework_parity:
+    rtol: 0.0001
+    atol: 1.0e-05
+    decoded_xywh_absolute_bound: 0.01
+network_input_map:
+  images: images

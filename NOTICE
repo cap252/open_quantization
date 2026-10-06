@@ -1,0 +1,5 @@
+opennpu-quant
+Copyright 2026 opennpu-quant contributors
+
+This package includes numerical algorithms developed in the preceding ONNX quantization research codebase, with portable execution and data adapters.
+Original model implementations, weights and datasets are acquired separately and retain their own terms. See THIRD_PARTY.md.

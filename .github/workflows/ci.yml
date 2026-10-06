@@ -1,0 +1,56 @@
+name: CPU release checks
+on: [push, pull_request]
+jobs:
+  portable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1+cpu
+      - run: python -m pip install '.[runtime,images,coco,dev,report]' build
+      - run: ruff check src tests
+      - run: ruff format --check src tests
+      - name: Check lightweight import
+        run: |
+          python - <<'PY'
+          import sys
+          import opennpu_quant
+          assert len(opennpu_quant.__all__) == 16
+          assert not {'numpy', 'onnx', 'onnxruntime', 'torch', 'tensorflow'} & set(sys.modules)
+          PY
+      - run: opennpu-quant demo --adaround
+      - run: opennpu-quant run --models resnet18 --conditions fp32,pot_rtn --dry-run
+      - name: Build source and wheel distributions
+        run: python -m build --outdir dist
+      - name: Check distribution contents
+        run: |
+          python - <<'PY'
+          from pathlib import Path, PurePosixPath
+          import tarfile, zipfile
+          forbidden = {'.github', 'docs', 'tests', 'tools'}
+          wheels = list(Path('dist').glob('*.whl'))
+          sources = list(Path('dist').glob('*.tar.gz'))
+          assert len(wheels) == len(sources) == 1
+          with zipfile.ZipFile(wheels[0]) as archive:
+              assert not any(PurePosixPath(p).parts[0] in forbidden for p in archive.namelist())
+          with tarfile.open(sources[0]) as archive:
+              paths = [PurePosixPath(p).parts[1:] for p in archive.getnames()]
+              assert not any(p and p[0] in forbidden for p in paths)
+              assert ('README.md',) in paths and ('README.ko.md',) in paths
+          PY
+      - name: Install the built wheel
+        run: python -m pip install --force-reinstall --no-deps dist/*.whl
+      - name: Run self-contained regressions against the installed wheel
+        run: python -m unittest discover -s tests -t . -v
+      - name: Check installed package outside the checkout
+        working-directory: ${{ runner.temp }}
+        run: |
+          python - <<'PY'
+          from opennpu_quant.models.spec import ModelSpec, model_names
+          assert len(model_names()) == 10
+          assert ModelSpec.load('resnet18').name == 'resnet18'
+          PY
+          opennpu-quant demo --adaround
+          opennpu-quant run --models resnet18 --conditions fp32,pot_rtn --dry-run

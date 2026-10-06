@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opennpu-quant"
+version = "0.1.0"
+description = "Portable ONNX QDQ, power-of-two scales and fixed-encoding AdaRound"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = {file = "LICENSE"}
+dependencies = ["numpy==1.26.4", "onnx==1.17.0", "PyYAML==6.0.2"]
+classifiers = ["Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3.11"]
+
+[project.optional-dependencies]
+report = ["openpyxl==3.1.5"]
+runtime = ["onnxruntime-gpu==1.20.2; sys_platform == 'linux' and platform_machine == 'x86_64'"]
+images = ["pillow==11.1.0", "opencv-python-headless==4.11.0.86"]
+coco = ["pycocotools==2.0.8"]
+adaround = ["torch==2.5.1"]
+data = ["datasets>=3,<4", "huggingface-hub==0.29.3", "scipy==1.15.2"]
+export = ["torchvision==0.20.1", "tensorflow-cpu==2.15.1", "tf2onnx==1.16.1", "protobuf==3.20.3", "ml-dtypes==0.3.2", "onnxsim==0.4.36", "pandas==2.2.3", "seaborn==0.13.2", "thop==0.1.1.post2209072238", "ipython==8.31.0", "setuptools==80.9.0"]
+dev = ["pytest>=8,<9", "ruff==0.11.13"]
+
+[project.scripts]
+opennpu-quant = "opennpu_quant.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+opennpu_quant = ["resources/**/*.yaml", "resources/**/*.txt"]
+
+[tool.ruff]
+required-version = "==0.11.13"
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["F401", "F811", "F841"]

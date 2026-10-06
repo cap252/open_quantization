@@ -1,0 +1,84 @@
+name: retinaface_mnet025_640
+title: RetinaFace MobileNet0.25 (640x640)
+task: face
+dataset: widerface
+metric: AP_medium
+input:
+  name: images
+  shape:
+  - 1
+  - 3
+  - 640
+  - 640
+  dtype: float32
+  layout: NCHW
+graphs:
+  network: network.onnx
+  postprocess: postprocess.onnx
+preprocess:
+  kind: resize_bgr_mean
+  size:
+  - 640
+  - 640
+  mean_bgr:
+  - 104
+  - 117
+  - 123
+decode:
+  kind: retinaface
+  priors:
+    min_sizes:
+    - - 16
+      - 32
+    - - 64
+      - 128
+    - - 256
+      - 512
+    steps:
+    - 8
+    - 16
+    - 32
+    clip: false
+  variance:
+  - 0.1
+  - 0.2
+  score_threshold: 0.02
+  nms_iou: 0.4
+  max_detections: 750
+  rescale: per_axis_clip
+  record: wider_int_xywh
+metric_params:
+  iou: 0.5
+  thresholds: 1000
+  setting: medium
+source:
+  repo: https://github.com/biubug6/Pytorch_Retinaface
+  commit: b984b4b775b2c4dced95c1eadd195a5c7d32a60b
+  url: https://drive.google.com/uc?export=download&id=15zP8BP-5IvWXWZoYTNdvUJUiBqZ1hxu1
+  file: mobilenet0.25_Final.pth
+  sha256: 2979b33ffafda5d74b6948cd7a5b9a7a62f62b949cef24e95fd15d2883a65220
+  license: MIT
+export:
+  family: retinaface
+  opset: 18
+  simplify: true
+  split:
+    network_input: images
+    network_outputs:
+    - /BboxHead.0/conv1x1/Conv_output_0
+    - /BboxHead.1/conv1x1/Conv_output_0
+    - /BboxHead.2/conv1x1/Conv_output_0
+    - /ClassHead.0/conv1x1/Conv_output_0
+    - /ClassHead.1/conv1x1/Conv_output_0
+    - /ClassHead.2/conv1x1/Conv_output_0
+    - /LandmarkHead.0/conv1x1/Conv_output_0
+    - /LandmarkHead.1/conv1x1/Conv_output_0
+    - /LandmarkHead.2/conv1x1/Conv_output_0
+  framework_parity:
+    rtol: 0.0001
+    atol: 1.0e-05
+    output_absolute_bounds:
+      loc: 0.0001
+      landmarks: 0.0001
+network_input_map:
+  images: images
